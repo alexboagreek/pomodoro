@@ -7,6 +7,8 @@ const btnStop = document.querySelector('.control__btn_stop');
 const navigationBtn = document.querySelectorAll('.navigation__btn');
 
 export const changeActiveBtn = (dataUse) => {
+    state.status = dataUse;
+   
     const btn = document.querySelector(`[data-use="${dataUse}"]`);
 
     for (let i = 0; i < navigationBtn.length; i++) {
@@ -43,5 +45,12 @@ export const initControl = () => {
     });
 
     btnStop.addEventListener('click', stop);
+
+    for (let i = 0; i < navigationBtn.length; i++) {
+        navigationBtn[i].addEventListener('click', () => {
+            changeActiveBtn(navigationBtn[i].dataset.use);
+            stop();
+        });
+    }
     showTime(state.timeLeft);
 };

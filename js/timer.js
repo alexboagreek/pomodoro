@@ -12,7 +12,7 @@ export const showTime = (seconds) => {
 };
 
 export const startTimer = () => {
-    state.timeLeft -= 11;
+    state.timeLeft -= 1;
     showTime(state.timeLeft);
 
     if (state.timeLeft > 0 && state.isActive) {
