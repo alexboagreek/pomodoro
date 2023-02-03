@@ -1,4 +1,6 @@
 import { state } from './state.js';
+import { changeActiveBtn } from './control.js';
+import { stop } from './control.js';
 
 const titleElem = document.querySelector('.title');
 const countElem = document.querySelector('.count_num');
@@ -17,7 +19,6 @@ const getTodo = () => {
     return todoList;
 };
 
-
 const addTodo = (title) => {
     const todo = {
         title,
@@ -30,6 +31,23 @@ const addTodo = (title) => {
 
     localStorage.setItem('pomodoro', JSON.stringify(todoList));
     return todo;
+};
+
+export const updateTodo = (todo) => {
+    const todoList = getTodo();
+    const todoItem = todoList.find((item) => item.id === todo.id);
+    todoItem.title = todo.title;
+    todoItem.pomodoro = todo.pomodoro;
+    localStorage.setItem('pomodoro', JSON.stringify(todoList));
+};
+
+const deleteTodo = (todo) => {
+    const todoList = getTodo();
+    const newTodoList = todoList.filter((item) => item.id !== todo.id);
+    if (todo.id === state.activeTodo.id) {
+        state.activeTodo = newTodoList[newTodoList.length - 1];
+    }
+    localStorage.setItem('pomodoro', JSON.stringify(newTodoList));
 };
 
 const createTodoListItem = (todo) => {
@@ -55,6 +73,32 @@ const createTodoListItem = (todo) => {
 
             todoItemWrapper.append(todoBtn, editBtn, delBtn);
             todoListElem.prepend(todoItem);
+
+            todoBtn.addEventListener('click', () => {
+                state.activeTodo = todo;
+                showTodo();
+                changeActiveBtn('work');
+                stop();
+            });
+
+            editBtn.addEventListener('click', () => {
+                todo.title = prompt('Название задачи', todo.title);
+                todoBtn.textContent = todo.title;
+
+                if (todo.id === state.activeTodo.id) {
+                    state.activeTodo.title = todo.title;
+                }
+
+                updateTodo(todo);
+                showTodo();
+            });
+
+            delBtn.addEventListener('click', () => {
+                deleteTodo(todo);
+
+                showTodo();
+                todoItem.remove();
+            });
         }
 };
 
@@ -64,21 +108,27 @@ const renderTodoList = (list) => {
     todoListElem.append(li);
 };
 
-const showTodo = () => {
-    titleElem.textContent = state.activeTodo.title;
-    countElem.textContent = state.activeTodo.pomodoro;
-
+export const showTodo = () => {
+    if (state.activeTodo) {
+        titleElem.textContent = state.activeTodo.title;
+        countElem.textContent = state.activeTodo.pomodoro;
+    } else {
+        titleElem.textContent = '';
+        countElem.textContent = 0;
+    }
 };
 
 export const initTodo = () => {
     const todoList = getTodo();
 
     if (!todoList.length) {
-        state.activeTodo = [{
+
+        state.activeTodo = {
             id: 'default',
             pomodoro: 0,
             title: 'Помидора',
-        }];
+        };
+
     } else {
         state.activeTodo = todoList[todoList.length - 1];
     }
@@ -88,7 +138,12 @@ export const initTodo = () => {
 
     todoAddBtn.addEventListener('click', () => {
         const title = prompt('Введите имя задачи');
-        const todo = addTodo(title);
-        createTodoListItem(todo);
+        if (title !==null && title.trim() !== '') {
+            const todo = addTodo(title);
+            createTodoListItem(todo);
+        } else {
+            alert('Введите корректные данные!');
+        }
+      
     });
 };

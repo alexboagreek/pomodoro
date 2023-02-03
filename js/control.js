@@ -22,7 +22,7 @@ export const changeActiveBtn = (dataUse) => {
     btn.classList.add('navigation__btn_active');
 };
 
-const stop = () => {
+export const stop = () => {
     clearTimeout(state.timerId);
     state.isActive = false;
     btnStart.textContent = 'Старт';
